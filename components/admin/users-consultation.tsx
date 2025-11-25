@@ -1,80 +1,58 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Search, Mail, BookOpen } from "lucide-react"
+import axios from "axios"
+import { formatSecondsToMMSS } from "@/lib/utils"
 
 interface User {
   id: string
+  credentials : {
   firstName: string
   lastName: string
   filiere: string
-  email: string
-  joinedDate: string
-  status: "active" | "inactive"
+  }
+  score ?: number
+  time ?: number
+  total ? : number
+  percentage ?: number
 }
 
 export function UsersConsultation() {
-  const [users, setUsers] = useState<User[]>([
-    {
-      id: "1",
-      firstName: "Ahmed",
-      lastName: "Mohamed",
-      filiere: "Computer Science",
-      email: "ahmed@example.com",
-      joinedDate: "2025-01-10",
-      status: "active",
-    },
-    {
-      id: "2",
-      firstName: "Fatima",
-      lastName: "Hassan",
-      filiere: "Engineering",
-      email: "fatima@example.com",
-      joinedDate: "2025-01-12",
-      status: "active",
-    },
-    {
-      id: "3",
-      firstName: "Karim",
-      lastName: "Khalil",
-      filiere: "Business Administration",
-      email: "karim@example.com",
-      joinedDate: "2025-01-08",
-      status: "inactive",
-    },
-    {
-      id: "4",
-      firstName: "Layla",
-      lastName: "Ibrahim",
-      filiere: "Arts & Humanities",
-      email: "layla@example.com",
-      joinedDate: "2025-01-15",
-      status: "active",
-    },
-  ])
+  const [users, setUsers] = useState<User[]>([])
 
+  useEffect(() => {
+    const users = async () => {
+      try {
+        const res = await axios.get('/api/user');
+        console.log(res.data?.users)
+        setUsers(res.data?.users)
+      } catch (err: any) {
+      }
+    }
+    users()
+  }, [])
   const [searchTerm, setSearchTerm] = useState("")
   const [filterFiliere, setFilterFiliere] = useState("all")
 
-  const filieres = Array.from(new Set(users.map((u) => u.filiere)))
+  const filieres = Array.from(new Set(users.map((u) => u.credentials.filiere)))
 
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
-      user.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase())
+      user.credentials.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.credentials.lastName.toLowerCase().includes(searchTerm.toLowerCase()) 
 
-    const matchesFiliere = filterFiliere === "all" || user.filiere === filterFiliere
+    const matchesFiliere = filterFiliere === "all" || user.credentials.filiere === filterFiliere
 
     return matchesSearch && matchesFiliere
   })
 
   return (
     <div className="space-y-6">
-      <Card className="border-0 shadow-lg bg-white">
-        <CardHeader className="bg-gradient-to-r from-blue-500 to-green-500 text-white rounded-t-lg">
+      <Card className="border-0 shadow-lg bg-white pt-0">
+        <CardHeader className="bg-gradient-to-r py-2 pt-3  from-blue-500 to-green-500 text-white rounded-t-lg">
           <CardTitle>Users Consultation</CardTitle>
           <CardDescription className="text-blue-100">View and search registered users</CardDescription>
         </CardHeader>
@@ -83,7 +61,7 @@ export function UsersConsultation() {
             {/* Search and Filter */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="relative">
-                <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                <Search className="absolute left-3 top-2 w-5 h-5 text-gray-400" />
                 <Input
                   placeholder="Search by name or email..."
                   value={searchTerm}
@@ -113,9 +91,8 @@ export function UsersConsultation() {
                   <tr className="border-b-2 border-gray-200 bg-gray-50">
                     <th className="px-4 py-3 text-left font-semibold text-gray-700">Name</th>
                     <th className="px-4 py-3 text-left font-semibold text-gray-700">Filière</th>
-                    <th className="px-4 py-3 text-left font-semibold text-gray-700">Email</th>
-                    <th className="px-4 py-3 text-left font-semibold text-gray-700">Joined Date</th>
-                    <th className="px-4 py-3 text-left font-semibold text-gray-700">Status</th>
+                    <th className="px-4 py-3 text-left font-semibold text-gray-700">Score</th>
+                    <th className="px-4 py-3 text-left font-semibold text-gray-700">Time</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -130,31 +107,21 @@ export function UsersConsultation() {
                       <tr key={user.id} className="border-b border-gray-200 hover:bg-blue-50 transition-colors">
                         <td className="px-4 py-3">
                           <div className="font-semibold text-gray-800">
-                            {user.firstName} {user.lastName}
+                            {user.credentials.firstName} {user.credentials.lastName}
                           </div>
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2 text-gray-700">
                             <BookOpen className="w-4 h-4 text-blue-500" />
-                            {user.filiere}
+                            {user.credentials.filiere}
                           </div>
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2 text-gray-700">
-                            <Mail className="w-4 h-4 text-green-500" />
-                            {user.email}
+                            {user?.score}/{user?.total}
                           </div>
                         </td>
-                        <td className="px-4 py-3 text-gray-600">{user.joinedDate}</td>
-                        <td className="px-4 py-3">
-                          <span
-                            className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                              user.status === "active" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-700"
-                            }`}
-                          >
-                            {user.status === "active" ? "Active" : "Inactive"}
-                          </span>
-                        </td>
+                        <td className="px-4 py-3 text-gray-600">{user?.time ? formatSecondsToMMSS(user?.time) : ''}</td>
                       </tr>
                     ))
                   )}
@@ -163,21 +130,12 @@ export function UsersConsultation() {
             </div>
 
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-4 pt-4 border-t border-gray-200">
+            <div className="grid grid-cols-1 gap-4 pt-4 border-t border-gray-200">
               <div className="text-center">
                 <p className="text-gray-600 text-sm">Total Users</p>
                 <p className="text-2xl font-bold text-blue-600">{users.length}</p>
               </div>
-              <div className="text-center">
-                <p className="text-gray-600 text-sm">Active Users</p>
-                <p className="text-2xl font-bold text-green-600">{users.filter((u) => u.status === "active").length}</p>
-              </div>
-              <div className="text-center">
-                <p className="text-gray-600 text-sm">Inactive Users</p>
-                <p className="text-2xl font-bold text-gray-600">
-                  {users.filter((u) => u.status === "inactive").length}
-                </p>
-              </div>
+             
             </div>
           </div>
         </CardContent>

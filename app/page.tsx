@@ -4,14 +4,74 @@ import { useState } from "react"
 import { QuizInterface } from "@/components/quiz-interface"
 import { QuizResults } from "@/components/quiz-results"
 import { WaitingPage } from "@/components/waiting-page"
+import { useEffect } from "react"
+import axios from "axios"
+import { useRouter } from "next/navigation"
+
+interface confDataType {
+  name: string
+  duration: number
+  maxParticipants: string
+  totalQuestions: string
+  start: boolean
+}
+
+interface questionType {
+  id: string
+  question: string,
+  options: string[]
+  correctAnswer: number,
+  category: string,
+}
 
 export default function Home() {
   const [quizStarted, setQuizStarted] = useState(false)
   const [onWaitingPage, setOnWaitingPage] = useState(false)
+  const [questions, setQuestions] = useState<questionType[] | any[]>([])
+  const [configData, setConfigData] = useState<confDataType>({
+    name: "",
+    duration: 0,
+    maxParticipants: "",
+    totalQuestions: "",
+    start: false
+  })
   const [results, setResults] = useState<any>(null)
 
-  const handleQuizComplete = (finalScore: number, totalQuestions: number) => {
-    setResults({ score: finalScore, total: totalQuestions })
+
+  const router = useRouter();
+  useEffect(() => {
+    const check_connection = async () => {
+      try {
+        const res = await axios.get('/api/user/connect', {
+          withCredentials: true
+        });
+        const connected = res.data?.connected;
+        if (!connected)
+          router.replace('/identify');
+      } catch (err: any) {
+
+      }
+    }
+    const config = async () => {
+      const res = await axios.get('/api/config');
+      const data = res.data?.configData;
+      setConfigData(data);
+    }
+
+    const questions = async () => {
+      try {
+        const res = await axios.get('/api/questions');
+        setQuestions(res.data?.questions)
+      } catch (err: any) {
+
+      }
+    }
+    questions()
+    config()
+    check_connection()
+  }, [])
+  const handleQuizComplete = (finalScore: number, totalQuestions: number , time : number) => {
+    setResults({ score: finalScore, total: totalQuestions , time : (configData.duration*60 - time)})
   }
 
   const handleRestart = () => {
@@ -38,7 +98,7 @@ export default function Home() {
                     <img src="/generic-club-logo.png" alt="Club Logo" className="w-20 h-20 object-contain" />
                   </div>
                 </div>
-                <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">Culture Quiz</h1>
+                <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">{configData.name}</h1>
                 <p className="text-blue-100 text-lg">Test Your Knowledge and Learn Something New!</p>
               </div>
 
@@ -56,7 +116,7 @@ export default function Home() {
                   {/* Features */}
                   <div className="grid grid-cols-3 gap-4 py-6">
                     <div className="text-center">
-                      <div className="text-3xl font-bold text-blue-600 mb-2">50</div>
+                      <div className="text-3xl font-bold text-blue-600 mb-2">{configData?.totalQuestions}</div>
                       <p className="text-sm text-gray-600">Questions</p>
                     </div>
                     <div className="text-center">
@@ -64,8 +124,8 @@ export default function Home() {
                       <p className="text-sm text-gray-600">Options</p>
                     </div>
                     <div className="text-center">
-                      <div className="text-3xl font-bold text-purple-600 mb-2">∞</div>
-                      <p className="text-sm text-gray-600">Learning</p>
+                      <div className="text-3xl font-bold text-purple-600 mb-2">{configData.duration} min</div>
+                      <p className="text-sm text-gray-600">Duration</p>
                     </div>
                   </div>
 
@@ -85,11 +145,11 @@ export default function Home() {
           </div>
         </div>
       ) : onWaitingPage ? (
-        <WaitingPage onReady={handleStartQuiz} />
+        <WaitingPage onReady={handleStartQuiz} configData={configData} />
       ) : results ? (
-        <QuizResults score={results.score} total={results.total} onRestart={handleRestart} />
+        <QuizResults score={results.score} total={results.total} onRestart={handleRestart} time={results.time} />
       ) : (
-        <QuizInterface onComplete={handleQuizComplete} />
+        <QuizInterface onComplete={handleQuizComplete} questions={questions} confData={configData} />
       )}
     </main>
   )

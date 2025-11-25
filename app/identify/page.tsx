@@ -2,18 +2,15 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
+import axios from "axios"
+import { useRouter } from "next/navigation"
 
 const FILIERES = [
-  "Computer Science",
-  "Engineering",
-  "Business Administration",
-  "Arts & Humanities",
-  "Natural Sciences",
-  "Social Sciences",
-  "Law",
-  "Medicine",
+  "GECSI",
+  "GEER",
+  "Autres"
 ]
 
 export default function IdentificationPage() {
@@ -22,6 +19,23 @@ export default function IdentificationPage() {
     lastName: "",
     filiere: "",
   })
+
+  const router = useRouter();
+  useEffect(()=>{
+        const check_connection = async ()=>{
+             try{
+              const res = await axios.get('/api/user/connect',{
+                withCredentials : true
+              });
+              const connected = res.data?.connected;
+              if(connected)
+                  router.replace('/');
+            }catch(err : any){
+        
+            }
+          }
+          check_connection()
+  },[])
 
   const [submitted, setSubmitted] = useState(false)
 
@@ -33,13 +47,18 @@ export default function IdentificationPage() {
     }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (formData.firstName && formData.lastName && formData.filiere) {
+      try{
+      const res = await axios.post('/api/user',{
+        credentials : formData
+      });
       setSubmitted(true)
       console.log("[v0] Form submitted:", formData)
-      // Store in session storage for quiz page to access
-      sessionStorage.setItem("userInfo", JSON.stringify(formData))
+    }catch(err : any){
+          
+      }
     }
   }
 

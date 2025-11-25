@@ -1,38 +1,52 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
 import { Calendar, Clock, Users } from "lucide-react"
+import axios from "axios"
 
 export function CompetitionControl() {
-  const [isRunning, setIsRunning] = useState(false)
   const [competitionData, setCompetitionData] = useState({
     name: "Culture Quiz 2025",
-    startDate: "2025-01-15",
-    endDate: "2025-02-15",
     duration: "5",
     maxParticipants: "100",
     totalQuestions: "50",
+    start : false
   })
 
+  useEffect(()=>{
+    const config = async ()=>{
+      const res = await axios.get('/api/config');  
+      const data  = res.data?.configData;
+      setCompetitionData(data);
+    }
+    config()
+  },[])
+
   const handleToggleCompetition = () => {
-    setIsRunning(!isRunning)
+    setCompetitionData((prev)=> ({...prev , start : !prev.start }));
   }
 
-  const handleUpdateField = (field: string, value: string) => {
+  const handleUpdateField = async (field: string, value: string) => {
     setCompetitionData((prev) => ({
       ...prev,
       [field]: value,
     }))
   }
 
+  const handleSave = async ()=>{
+    const res = await axios.post('/api/config',competitionData,{
+      withCredentials : true
+     });     
+  }
+
   return (
     <div className="space-y-6">
-      <Card className="border-0 shadow-lg bg-white">
-        <CardHeader className="bg-gradient-to-r from-blue-500 to-green-500 text-white rounded-t-lg">
+      <Card className="border-0 shadow-lg pt-0 bg-white">
+        <CardHeader className="bg-gradient-to-r py-2 pt-3  from-blue-500 to-green-500 text-white rounded-t-lg">
           <CardTitle>Competition Control</CardTitle>
           <CardDescription className="text-blue-100">Manage competition settings and status</CardDescription>
         </CardHeader>
@@ -44,7 +58,7 @@ export function CompetitionControl() {
                 <div>
                   <h3 className="text-xl font-bold text-gray-800 mb-2">Competition Status</h3>
                   <p className="text-gray-600">
-                    {isRunning ? (
+                    {competitionData.start ? (
                       <span className="text-green-600 font-semibold flex items-center gap-2">
                         <span className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></span>
                         RUNNING
@@ -59,7 +73,7 @@ export function CompetitionControl() {
                 </div>
                 <div className="flex items-center gap-4">
                   <span className="text-sm font-semibold text-gray-700">Start Competition</span>
-                  <Switch checked={isRunning} onCheckedChange={handleToggleCompetition} className="scale-125" />
+                  <Switch checked={competitionData.start} onCheckedChange={handleToggleCompetition} className="scale-125" />
                 </div>
               </div>
             </div>
@@ -85,25 +99,7 @@ export function CompetitionControl() {
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-semibold mb-2 text-gray-700">Start Date</label>
-                <Input
-                  type="date"
-                  value={competitionData.startDate}
-                  onChange={(e) => handleUpdateField("startDate", e.target.value)}
-                  className="border-2 border-gray-200 focus:border-blue-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold mb-2 text-gray-700">End Date</label>
-                <Input
-                  type="date"
-                  value={competitionData.endDate}
-                  onChange={(e) => handleUpdateField("endDate", e.target.value)}
-                  className="border-2 border-gray-200 focus:border-blue-500"
-                />
-              </div>
+          
 
               <div>
                 <label className="block text-sm font-semibold mb-2 text-gray-700">Max Participants</label>
@@ -126,7 +122,7 @@ export function CompetitionControl() {
               </div>
             </div>
 
-            <Button className="w-full bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700 text-white font-semibold py-3">
+            <Button onClick={handleSave} className="w-full bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700 text-white font-semibold py-3">
               Save Competition Settings
             </Button>
           </div>

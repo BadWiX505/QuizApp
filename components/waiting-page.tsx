@@ -2,7 +2,14 @@
 
 import { useState, useEffect } from "react"
 
-export function WaitingPage({ onReady }: { onReady: () => void }) {
+interface confDataType {
+  name: string
+  duration: number
+  maxParticipants: string
+  totalQuestions: string
+  start: boolean
+}
+export function WaitingPage({ onReady, configData }: { onReady: () => void, configData: confDataType }) {
   const [loadingDots, setLoadingDots] = useState(0)
 
   useEffect(() => {
@@ -48,9 +55,6 @@ export function WaitingPage({ onReady }: { onReady: () => void }) {
             <div className="space-y-8">
               {/* Animated Loading Bar */}
               <div className="space-y-4">
-                <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
-                  <div className="h-full bg-gradient-to-r from-blue-600 to-green-600 animate-pulse w-3/4"></div>
-                </div>
                 <p className="text-center text-gray-600 font-semibold">
                   {randomMessage}
                   <span className="inline-block w-6">{dots}</span>
@@ -71,9 +75,9 @@ export function WaitingPage({ onReady }: { onReady: () => void }) {
 
               {/* Fun Stats */}
               <div className="grid grid-cols-3 gap-4">
-                <StatCard number="1000+" label="Culture Facts" icon="🌍" color="from-blue-400 to-blue-600" delay={0} />
+                <StatCard number="great" label="Culture Facts" icon="🌍" color="from-blue-400 to-blue-600" delay={0} />
                 <StatCard
-                  number="50"
+                  number={configData?.totalQuestions}
                   label="Quiz Questions"
                   icon="❓"
                   color="from-green-400 to-green-600"
@@ -83,12 +87,15 @@ export function WaitingPage({ onReady }: { onReady: () => void }) {
               </div>
 
               {/* Start Button */}
-              <button
-                onClick={onReady}
-                className="w-full bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700 text-white font-bold py-4 px-6 rounded-xl text-lg transition-all transform hover:scale-105 shadow-lg active:scale-95"
-              >
-                Let's Go!
-              </button>
+              {
+                configData?.start &&
+                <button
+                  onClick={onReady}
+                  className="w-full bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700 text-white font-bold py-4 px-6 rounded-xl text-lg transition-all transform hover:scale-105 shadow-lg active:scale-95"
+                >
+                  Let's Go!
+                </button>
+              }
             </div>
           </div>
         </div>

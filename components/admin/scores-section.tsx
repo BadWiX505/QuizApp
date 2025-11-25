@@ -1,85 +1,55 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Search, Trophy, TrendingUp } from "lucide-react"
+import axios from "axios"
+import { formatSecondsToMMSS } from "@/lib/utils"
 
 interface Score {
   id: string
+  credentials :{
   firstName: string
   lastName: string
   filiere: string
+  }
   score: number
-  totalQuestions: number
-  percentage: number
-  completedDate: string
-  timeSpent: string
+  total: number
+  time: number
+  percentage : number
 }
 
 export function ScoresSection() {
-  const [scores, setScores] = useState<Score[]>([
-    {
-      id: "1",
-      firstName: "Ahmed",
-      lastName: "Mohamed",
-      filiere: "Computer Science",
-      score: 45,
-      totalQuestions: 50,
-      percentage: 90,
-      completedDate: "2025-01-15",
-      timeSpent: "4m 30s",
-    },
-    {
-      id: "2",
-      firstName: "Fatima",
-      lastName: "Hassan",
-      filiere: "Engineering",
-      score: 42,
-      totalQuestions: 50,
-      percentage: 84,
-      completedDate: "2025-01-14",
-      timeSpent: "4m 45s",
-    },
-    {
-      id: "3",
-      firstName: "Karim",
-      lastName: "Khalil",
-      filiere: "Business Administration",
-      score: 48,
-      totalQuestions: 50,
-      percentage: 96,
-      completedDate: "2025-01-13",
-      timeSpent: "4m 15s",
-    },
-    {
-      id: "4",
-      firstName: "Layla",
-      lastName: "Ibrahim",
-      filiere: "Arts & Humanities",
-      score: 38,
-      totalQuestions: 50,
-      percentage: 76,
-      completedDate: "2025-01-12",
-      timeSpent: "4m 50s",
-    },
-  ])
-
+  const [scores, setScores] = useState<Score[]>([])
   const [searchTerm, setSearchTerm] = useState("")
-  const [sortBy, setSortBy] = useState<"percentage" | "date">("percentage")
+  const [sortBy, setSortBy] = useState<"percentage">("percentage")
+
+   useEffect(()=>{
+     const users = async () => {
+      try {
+        const res = await axios.get('/api/user');
+        setScores(res.data?.users);
+      } catch (err: any) {
+      }
+    }
+    users();
+   },[])
 
   const filteredScores = scores.filter(
     (score) =>
-      score.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      score.lastName.toLowerCase().includes(searchTerm.toLowerCase()),
+      score.credentials.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      score.credentials.lastName.toLowerCase().includes(searchTerm.toLowerCase()),
   )
+const sortedScores = [...filteredScores].sort((a, b) => {
+  // 1. Sort by percentage (descending)
+  if (b.percentage !== a.percentage) {
+    return b.percentage - a.percentage;
+  }
+  // 2. If percentages equal → sort by time (ascending)
+    return a.time - b.time;
+});
 
-  const sortedScores = [...filteredScores].sort((a, b) => {
-    if (sortBy === "percentage") {
-      return b.percentage - a.percentage
-    }
-    return new Date(b.completedDate).getTime() - new Date(a.completedDate).getTime()
-  })
 
   const averageScore = (scores.reduce((sum, s) => sum + s.percentage, 0) / scores.length).toFixed(1)
   const topScore = Math.max(...scores.map((s) => s.percentage))
@@ -100,8 +70,8 @@ export function ScoresSection() {
 
   return (
     <div className="space-y-6">
-      <Card className="border-0 shadow-lg bg-white">
-        <CardHeader className="bg-gradient-to-r from-blue-500 to-green-500 text-white rounded-t-lg">
+      <Card className="border-0 shadow-lg pt-0 bg-white">
+        <CardHeader className="bg-gradient-to-r  py-2 pt-3 from-blue-500 to-green-500 text-white rounded-t-lg">
           <CardTitle>User Scores & Results</CardTitle>
           <CardDescription className="text-blue-100">Track and analyze quiz performance</CardDescription>
         </CardHeader>
@@ -110,7 +80,7 @@ export function ScoresSection() {
             {/* Search and Sort */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="relative">
-                <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+                <Search className="absolute left-3 top-2 w-5 h-5 text-gray-400" />
                 <Input
                   placeholder="Search by name..."
                   value={searchTerm}
@@ -121,11 +91,10 @@ export function ScoresSection() {
 
               <select
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as "percentage" | "date")}
+                onChange={(e) => setSortBy( "percentage")}
                 className="px-4 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-green-500"
               >
                 <option value="percentage">Sort by Score (Highest First)</option>
-                <option value="date">Sort by Date (Newest First)</option>
               </select>
             </div>
 
@@ -164,7 +133,6 @@ export function ScoresSection() {
                     <th className="px-4 py-3 text-left font-semibold text-gray-700">Score</th>
                     <th className="px-4 py-3 text-left font-semibold text-gray-700">Percentage</th>
                     <th className="px-4 py-3 text-left font-semibold text-gray-700">Time Spent</th>
-                    <th className="px-4 py-3 text-left font-semibold text-gray-700">Date</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -190,12 +158,12 @@ export function ScoresSection() {
                         </td>
                         <td className="px-4 py-3">
                           <div className="font-semibold text-gray-800">
-                            {score.firstName} {score.lastName}
+                            {score.credentials.firstName} {score.credentials.lastName}
                           </div>
                         </td>
-                        <td className="px-4 py-3 text-gray-600">{score.filiere}</td>
+                        <td className="px-4 py-3 text-gray-600">{score.credentials.filiere}</td>
                         <td className="px-4 py-3 font-semibold text-gray-800">
-                          {score.score}/{score.totalQuestions}
+                          {score.score}/{score.total}
                         </td>
                         <td className="px-4 py-3">
                           <div
@@ -206,9 +174,8 @@ export function ScoresSection() {
                         </td>
                         <td className="px-4 py-3 text-gray-600 flex items-center gap-1">
                           <TrendingUp className="w-4 h-4 text-blue-500" />
-                          {score.timeSpent}
+                          {formatSecondsToMMSS(score.time)}
                         </td>
-                        <td className="px-4 py-3 text-gray-600">{score.completedDate}</td>
                       </tr>
                     ))
                   )}

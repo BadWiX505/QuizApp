@@ -1,12 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Plus, Trash2, Edit2 } from "lucide-react"
+import axios from "axios"
 
 interface Question {
   id: string
@@ -17,22 +18,19 @@ interface Question {
 }
 
 export function QuestionsManager() {
-  const [questions, setQuestions] = useState<Question[]>([
-    {
-      id: "1",
-      question: "What is the capital of France?",
-      options: ["London", "Berlin", "Paris", "Madrid"],
-      correctAnswer: 2,
-      category: "Geography",
-    },
-    {
-      id: "2",
-      question: "Who painted the Mona Lisa?",
-      options: ["Van Gogh", "Leonardo da Vinci", "Michelangelo", "Raphael"],
-      correctAnswer: 1,
-      category: "Art",
-    },
-  ])
+  const [questions, setQuestions] = useState<Question[]>([]);
+
+  useEffect(() => {
+    const questions = async () => {
+      try {
+        const res = await axios.get('/api/questions');
+        setQuestions(res.data?.questions)
+      } catch (err: any) {
+
+      }
+    }
+    questions()
+  }, [])
 
   const [formData, setFormData] = useState({
     question: "",
@@ -47,7 +45,7 @@ export function QuestionsManager() {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
-  const handleAddQuestion = () => {
+  const handleAddQuestion = async () => {
     if (
       formData.question &&
       formData.option1 &&
@@ -57,21 +55,35 @@ export function QuestionsManager() {
       formData.category
     ) {
       if (editingId) {
-        setQuestions(
-          questions.map((q) =>
-            q.id === editingId
-              ? {
+        const newQuestion: Question = {
+          id: editingId,
+          question: formData.question,
+          options: [formData.option1, formData.option2, formData.option3, formData.option4],
+          correctAnswer: Number.parseInt(formData.correctAnswer),
+          category: formData.category,
+        }
+        try {
+          await axios.patch('/api/questions', newQuestion, {
+            withCredentials: true
+          });
+          setQuestions(
+            questions.map((q) =>
+              q.id === editingId
+                ? {
                   ...q,
                   question: formData.question,
                   options: [formData.option1, formData.option2, formData.option3, formData.option4],
                   correctAnswer: Number.parseInt(formData.correctAnswer),
                   category: formData.category,
                 }
-              : q,
-          ),
-        )
+                : q,
+            ),
+          )
+        } catch (err: any) {
+        }
         setEditingId(null)
       } else {
+
         const newQuestion: Question = {
           id: Date.now().toString(),
           question: formData.question,
@@ -79,7 +91,15 @@ export function QuestionsManager() {
           correctAnswer: Number.parseInt(formData.correctAnswer),
           category: formData.category,
         }
-        setQuestions([...questions, newQuestion])
+
+        try {
+          await axios.post('/api/questions', newQuestion, {
+            withCredentials: true
+          });
+          setQuestions([...questions, newQuestion])
+        } catch (err: any) {
+
+        }
       }
 
       setFormData({
@@ -95,7 +115,13 @@ export function QuestionsManager() {
     }
   }
 
-  const handleDeleteQuestion = (id: string) => {
+  const handleDeleteQuestion = async (id: string) => {
+    try {
+      await axios.delete(`/api/questions?id=${id}`,{
+        withCredentials : true
+      });
+    } catch (err: any) {
+    }
     setQuestions(questions.filter((q) => q.id !== id))
   }
 
@@ -121,10 +147,10 @@ export function QuestionsManager() {
 
   return (
     <div className="space-y-6">
-      <Card className="border-0 shadow-lg bg-white">
-        <CardHeader className="bg-gradient-to-r from-blue-500 to-green-500 text-white rounded-t-lg">
+      <Card className="border-0 shadow-lg bg-white pt-0">
+        <CardHeader className="py-2 pt-3 bg-gradient-to-r from-blue-500 to-green-500 text-white rounded-t-lg">
           <div className="flex justify-between items-center">
-            <div>
+            <div className="">
               <CardTitle>Manage Questions</CardTitle>
               <CardDescription className="text-blue-100">Create, edit, and delete quiz questions</CardDescription>
             </div>

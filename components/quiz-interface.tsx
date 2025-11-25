@@ -1,104 +1,111 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { ProgressBar } from "./progress-bar"
 import { QuestionCard } from "./question-card"
 import { Timer } from "./timer"
 
-const QUIZ_QUESTIONS = [
-  {
-    id: 1,
-    question: "Which country is famous for the Taj Mahal?",
-    options: ["Italy", "India", "Turkey", "Egypt"],
-    correct: 1,
-  },
-  {
-    id: 2,
-    question: "What is the capital of Japan?",
-    options: ["Seoul", "Bangkok", "Tokyo", "Beijing"],
-    correct: 2,
-  },
-  {
-    id: 3,
-    question: "Which festival is celebrated in Rio de Janeiro?",
-    options: ["Diwali", "Carnival", "Oktoberfest", "La Tomatina"],
-    correct: 1,
-  },
-  {
-    id: 4,
-    question: "What is the traditional dance of Spain?",
-    options: ["Tango", "Salsa", "Flamenco", "Waltz"],
-    correct: 2,
-  },
-  {
-    id: 5,
-    question: "Which country gifted the Statue of Liberty to the USA?",
-    options: ["Britain", "France", "Germany", "Italy"],
-    correct: 1,
-  },
-  {
-    id: 6,
-    question: "What is the oldest civilization in the world?",
-    options: ["Egyptian", "Mesopotamian", "Indus Valley", "Chinese"],
-    correct: 1,
-  },
-  {
-    id: 7,
-    question: "Which musical instrument is from Ireland?",
-    options: ["Oud", "Bodhrán", "Sitar", "Didgeridoo"],
-    correct: 1,
-  },
-  {
-    id: 8,
-    question: "What is the traditional greeting in Japan?",
-    options: ["Namaste", "Bow", "Handshake", "Kiss"],
-    correct: 1,
-  },
-  {
-    id: 9,
-    question: "Which country is the origin of tea culture?",
-    options: ["India", "China", "Japan", "Sri Lanka"],
-    correct: 1,
-  },
-  {
-    id: 10,
-    question: "What is the Great Wall of China primarily made of?",
-    options: ["Wood", "Brick and Stone", "Metal", "Clay"],
-    correct: 1,
-  },
-]
-
-interface QuizInterfaceProps {
-  onComplete: (score: number, total: number) => void
+interface UserAnswer {
+  questionId: string
+  selectedAnswer: number | null
 }
 
-export function QuizInterface({ onComplete }: QuizInterfaceProps) {
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [score, setScore] = useState(0)
-  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null)
-  const [answered, setAnswered] = useState(false)
+interface confDataType {
+  name: string
+  duration: number
+  maxParticipants: string
+  totalQuestions: string
+  start: boolean
+}
 
-  const currentQuestion = QUIZ_QUESTIONS[currentIndex]
-  const progress = ((currentIndex + 1) / QUIZ_QUESTIONS.length) * 100
+interface questionType {
+  id: string
+  question: string,
+  options: string[]
+  correctAnswer: number,
+  category: string,
+}
+
+interface QuizInterfaceProps {
+  onComplete: (score: number, total: number , time : number) => void
+  questions: questionType[]
+  confData: confDataType
+}
+
+export function QuizInterface({ onComplete, questions, confData }: QuizInterfaceProps) {
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [userAnswers, setUserAnswers] = useState<UserAnswer[]>([])
+  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null)
+  const [time, setTime] = useState<number>(confData.duration * 60)
+  const TIMER_ID = useRef<any>(null)
+  const currentQuestion = questions[currentIndex]
+  const progress = ((currentIndex + 1) / questions.length) * 100
+  const userAnswersRef = useRef<UserAnswer[]>([])
+
+  useEffect(() => {
+    userAnswersRef.current = userAnswers;
+  }, [userAnswers])
+
+
+  useEffect(()=>{
+     if(time<1){
+       const score = questions.reduce((acc, question, index) => {
+              return acc + (
+                userAnswersRef.current[index]?.selectedAnswer === question.correctAnswer ? 1 : 0
+              );
+            }, 0);
+            onComplete(score, questions.length , time);
+     }
+  },[time])
+
+  useEffect(() => {
+    const timeTrack = () => {
+      TIMER_ID.current = setInterval(() => {
+        setTime(prevTime => {
+          if (prevTime > 1) {
+            return prevTime - 1;
+          } else {
+            clearInterval(TIMER_ID.current);
+            return 0; // final state of timer
+          }
+        });
+      }, 100);
+
+    }
+    timeTrack()
+    return () => clearInterval(TIMER_ID.current);
+  }, [])
 
   const handleAnswer = (optionIndex: number) => {
-    if (answered) return
-
     setSelectedAnswer(optionIndex)
-    setAnswered(true)
+  }
 
-    if (optionIndex === currentQuestion.correct) {
-      setScore(score + 1)
-    }
+  const handleSkip = () => {
+    saveAnswerAndMove(null)
   }
 
   const handleNext = () => {
-    if (currentIndex < QUIZ_QUESTIONS.length - 1) {
+    saveAnswerAndMove(selectedAnswer)
+  }
+
+  const saveAnswerAndMove = (answer: number | null) => {
+    // Store the answer with question ID
+    const newAnswers = [...userAnswers]
+    newAnswers[currentIndex] = {
+      questionId: currentQuestion.id,
+      selectedAnswer: answer,
+    }
+    setUserAnswers(newAnswers)
+
+    // Move to next or complete quiz
+    if (currentIndex < questions.length - 1) {
       setCurrentIndex(currentIndex + 1)
       setSelectedAnswer(null)
-      setAnswered(false)
     } else {
-      onComplete(score + (selectedAnswer === currentQuestion.correct ? 1 : 0), QUIZ_QUESTIONS.length)
+      const score = questions.reduce((acc, question, index) => {
+        return acc + (newAnswers[index]?.selectedAnswer === question.correctAnswer ? 1 : 0)
+      }, 0)
+      onComplete(score, questions.length , time)
     }
   }
 
@@ -111,35 +118,37 @@ export function QuizInterface({ onComplete }: QuizInterfaceProps) {
             Culture Quiz Challenge
           </h1>
           <div className="flex-shrink-0">
-            <Timer />
+            <Timer time={time} />
           </div>
         </div>
 
         {/* Progress Bar */}
-        <ProgressBar current={currentIndex + 1} total={QUIZ_QUESTIONS.length} />
+        <ProgressBar current={currentIndex + 1} total={questions.length} />
 
         {/* Question Card */}
         <div className="mt-8">
-          <QuestionCard
-            question={currentQuestion}
-            selectedAnswer={selectedAnswer}
-            answered={answered}
-            onAnswer={handleAnswer}
-          />
+          <QuestionCard question={currentQuestion} selectedAnswer={selectedAnswer} onAnswer={handleAnswer} />
         </div>
 
         {/* Navigation */}
-        <div className="mt-8 flex justify-between items-center">
+        <div className="mt-8 flex justify-between items-center gap-4">
           <div className="text-gray-600 font-semibold">
-            Question {currentIndex + 1} of {QUIZ_QUESTIONS.length}
+            Question {currentIndex + 1} of {questions.length}
           </div>
-          <button
-            onClick={handleNext}
-            disabled={!answered}
-            className="bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3 px-8 rounded-lg transition-all transform hover:scale-105"
-          >
-            {currentIndex === QUIZ_QUESTIONS.length - 1 ? "Finish" : "Next"}
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={handleSkip}
+              className="bg-gray-400 hover:bg-gray-500 text-white font-bold py-3 px-6 rounded-lg transition-all transform hover:scale-105"
+            >
+              Skip
+            </button>
+            <button
+              onClick={handleNext}
+              className="bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700 text-white font-bold py-3 px-8 rounded-lg transition-all transform hover:scale-105"
+            >
+              {currentIndex === questions.length - 1 ? "Finish" : "Next"}
+            </button>
+          </div>
         </div>
       </div>
     </div>
