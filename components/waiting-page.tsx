@@ -43,7 +43,7 @@ export function WaitingPage({ onReady, configData }: { onReady: () => void, conf
             {/* Animated Logo */}
             <div className="mb-6 flex justify-center">
               <div className="w-32 h-32 bg-white rounded-full shadow-lg flex items-center justify-center animate-bounce">
-                <img src="/generic-club-logo.png" alt="Logo du Club" className="w-28 h-28 object-contain" />
+                <img src="/generic-club-logo.png" alt="Logo du Club" className="w-28 h-28 object-contain rounded-full" />
               </div>
             </div>
             <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">Préparez-vous !</h1>

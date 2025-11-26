@@ -95,7 +95,7 @@ export default function Home() {
                 {/* Logo Section */}
                 <div className="mb-6 flex justify-center">
                   <div className="w-24 h-24 bg-white rounded-full shadow-lg flex items-center justify-center">
-                    <img src="/generic-club-logo.png" alt="Logo du Club" className="w-20 h-20 object-contain" />
+                    <img src="/generic-club-logo.png" alt="Logo du Club" className="w-20 h-20 object-contain rounded-full" />
                   </div>
                 </div>
                 <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">{configData.name}</h1>

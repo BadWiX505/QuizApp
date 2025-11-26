@@ -72,7 +72,7 @@ export default function IdentificationPage() {
               {/* Logo Section */}
               <div className="mb-6 flex justify-center">
                 <div className="w-20 h-20 bg-white rounded-full shadow-lg flex items-center justify-center">
-                  <img src="/generic-club-logo.png" alt="Logo du Club" className="w-16 h-16 object-contain" />
+                  <img src="/generic-club-logo.png" alt="Logo du Club" className="w-16 h-16 object-contain rounded-full" />
                 </div>
               </div>
               <h1 className="text-3xl md:text-4xl font-bold text-white">Identification</h1>

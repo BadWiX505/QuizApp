@@ -48,7 +48,7 @@ export default function AdminDashboard() {
               </div>
             </div>
             <div className="w-16 h-16 bg-white rounded-full shadow-lg flex items-center justify-center">
-              <img src="/generic-club-logo.png" alt="Club Logo" className="w-12 h-12 object-contain" />
+              <img src="/generic-club-logo.png" alt="Club Logo" className="w-12 h-12 object-contain rounded-full" />
             </div>
           </div>
         </div>
