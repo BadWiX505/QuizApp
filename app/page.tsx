@@ -87,7 +87,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
       {!quizStarted ? (
-        <div className="flex items-center justify-center min-h-screen px-4">
+        <div className="flex items-center justify-center min-h-screen  sm:px-4">
           <div className="w-full max-w-2xl">
             <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
               {/* Header with gradient */}
@@ -95,21 +95,21 @@ export default function Home() {
                 {/* Logo Section */}
                 <div className="mb-6 flex justify-center">
                   <div className="w-24 h-24 bg-white rounded-full shadow-lg flex items-center justify-center">
-                    <img src="/generic-club-logo.png" alt="Club Logo" className="w-20 h-20 object-contain" />
+                    <img src="/generic-club-logo.png" alt="Logo du Club" className="w-20 h-20 object-contain" />
                   </div>
                 </div>
                 <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">{configData.name}</h1>
-                <p className="text-blue-100 text-lg">Test Your Knowledge and Learn Something New!</p>
+                <p className="text-blue-100 text-lg">Testez vos connaissances et apprenez quelque chose de nouveau !</p>
               </div>
 
               {/* Content Section */}
               <div className="p-8 md:p-12">
                 <div className="space-y-6">
                   <div className="text-center space-y-4">
-                    <h2 className="text-2xl font-bold text-gray-800">Welcome to the Challenge</h2>
+                    <h2 className="text-2xl font-bold text-gray-800">Bienvenue dans le Défi</h2>
                     <p className="text-gray-600 text-lg leading-relaxed">
-                      Challenge yourself with our exciting culture quiz! Explore diverse topics, expand your knowledge,
-                      and discover fascinating facts about world cultures.
+                      Mettez-vous au défi avec notre quiz culturel passionnant ! Explorez des sujets variés, élargissez vos connaissances
+                      et découvrez des faits fascinants sur les cultures du monde.
                     </p>
                   </div>
 
@@ -125,7 +125,7 @@ export default function Home() {
                     </div>
                     <div className="text-center">
                       <div className="text-3xl font-bold text-purple-600 mb-2">{configData.duration} min</div>
-                      <p className="text-sm text-gray-600">Duration</p>
+                      <p className="text-sm text-gray-600">Durée</p>
                     </div>
                   </div>
 
@@ -137,7 +137,7 @@ export default function Home() {
                     }}
                     className="w-full bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700 text-white font-bold py-4 px-6 rounded-xl text-lg transition-all transform hover:scale-105 shadow-lg"
                   >
-                    Start Quiz
+                    Commencer le Quiz
                   </button>
                 </div>
               </div>

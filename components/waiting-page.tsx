@@ -20,14 +20,14 @@ export function WaitingPage({ onReady, configData }: { onReady: () => void, conf
   }, [])
 
   const funMessages = [
-    "Sharpening your brain cells...",
-    "Loading brain power...",
-    "Preparing the culture questions...",
-    "Warming up the knowledge vault...",
-    "Brewing some brain juice...",
-    "Charging up your quiz energy...",
-    "Organizing the culture facts...",
-    "Summoning the quiz spirits...",
+    "Affûtage de vos neurones...",
+    "Chargement de la puissance cérébrale...",
+    "Préparation des questions de culture...",
+    "Réchauffement de la réserve de connaissances...",
+    "Infusion de jus de cerveau...",
+    "Recharge de votre énergie pour le quiz...",
+    "Organisation des faits culturels...",
+    "Invocation des esprits du quiz...",
   ]
 
   const randomMessage = funMessages[Math.floor(Math.random() * funMessages.length)]
@@ -35,7 +35,7 @@ export function WaitingPage({ onReady, configData }: { onReady: () => void, conf
   const dots = ".".repeat(loadingDots)
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center px-4">
+    <main className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center sm:px-4">
       <div className="w-full max-w-2xl">
         <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
           {/* Header with gradient */}
@@ -43,11 +43,11 @@ export function WaitingPage({ onReady, configData }: { onReady: () => void, conf
             {/* Animated Logo */}
             <div className="mb-6 flex justify-center">
               <div className="w-32 h-32 bg-white rounded-full shadow-lg flex items-center justify-center animate-bounce">
-                <img src="/generic-club-logo.png" alt="Club Logo" className="w-28 h-28 object-contain" />
+                <img src="/generic-club-logo.png" alt="Logo du Club" className="w-28 h-28 object-contain" />
               </div>
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">Get Ready!</h1>
-            <p className="text-blue-100 text-lg">The adventure is about to begin</p>
+            <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">Préparez-vous !</h1>
+            <p className="text-blue-100 text-lg">L’aventure est sur le point de commencer</p>
           </div>
 
           {/* Content Section */}
@@ -63,27 +63,27 @@ export function WaitingPage({ onReady, configData }: { onReady: () => void, conf
 
               {/* Fun Facts Section */}
               <div className="bg-gradient-to-br from-blue-50 to-green-50 rounded-2xl p-6 border-2 border-blue-200">
-                <h3 className="text-lg font-bold text-gray-800 mb-4">Did You Know?</h3>
+                <h3 className="text-lg font-bold text-gray-800 mb-4">Le Saviez-Vous ?</h3>
                 <div className="space-y-3">
-                  <FunFact text="The Great Wall of China is over 13,000 miles long!" delay={0} />
-                  <FunFact text="There are more than 7,000 languages spoken worldwide." delay={200} />
-                  <FunFact text="Japan has more than 100,000 restaurants." delay={400} />
-                  <FunFact text="The Eiffel Tower grows taller in summer due to heat expansion!" delay={600} />
-                  <FunFact text="Antarctica is the only continent with no native plants or animals." delay={800} />
+                  <FunFact text="La Grande Muraille de Chine mesure plus de 21 000 kilomètres !" delay={0} />
+                  <FunFact text="Plus de 7 000 langues sont parlées dans le monde." delay={200} />
+                  <FunFact text="Le Japon compte plus de 100 000 restaurants." delay={400} />
+                  <FunFact text="La tour Eiffel grandit en été grâce à la dilatation due à la chaleur !" delay={600} />
+                  <FunFact text="L’Antarctique est le seul continent sans plantes ni animaux natifs." delay={800} />
                 </div>
               </div>
 
               {/* Fun Stats */}
-              <div className="grid grid-cols-3 gap-4">
-                <StatCard number="great" label="Culture Facts" icon="🌍" color="from-blue-400 to-blue-600" delay={0} />
+              <div className="grid grid-rows-3 sm:grid-rows-1 sm:grid-cols-3 gap-4">
+                <StatCard number="génial" label="Faits Culturels" icon="🌍" color="from-blue-400 to-blue-600" delay={0} />
                 <StatCard
                   number={configData?.totalQuestions}
-                  label="Quiz Questions"
+                  label="Questions du Quiz"
                   icon="❓"
                   color="from-green-400 to-green-600"
                   delay={100}
                 />
-                <StatCard number="100%" label="Challenge" icon="🏆" color="from-purple-400 to-purple-600" delay={200} />
+                <StatCard number="100%" label="Défi" icon="🏆" color="from-purple-400 to-purple-600" delay={200} />
               </div>
 
               {/* Start Button */}
@@ -93,7 +93,7 @@ export function WaitingPage({ onReady, configData }: { onReady: () => void, conf
                   onClick={onReady}
                   className="w-full bg-gradient-to-r from-blue-600 to-green-600 hover:from-blue-700 hover:to-green-700 text-white font-bold py-4 px-6 rounded-xl text-lg transition-all transform hover:scale-105 shadow-lg active:scale-95"
                 >
-                  Let's Go!
+                  C’est parti !
                 </button>
               }
             </div>
